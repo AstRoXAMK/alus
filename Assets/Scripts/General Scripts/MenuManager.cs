@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
@@ -15,7 +16,8 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject CreditsScreen;
     [SerializeField] private GameObject SettingsScreen;
     public GameObject LogInScreen;
-
+    [SerializeField] logInUI logInUI;
+    public Button BackBtn;
     private bool waitingForButtonPress = false;
 
     void Update()

@@ -166,6 +166,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public int getHighScore()
+    {
+        return PlayerPrefs.GetInt("HighScore", 0);
+    }
+
     void UpdateSpeed(float speedIncrement)
     {
         // Update the speed of the game object here

@@ -7,47 +7,48 @@ using System;
 using UnityEngine.UI;
 using Firebase;
 using TMPro;
-using Unity.VisualScripting;
+using Firebase.Database;
 
 
-public class SignInUser : MonoBehaviour
+public class logInUI : MonoBehaviour
 {
-    //? Control the windows
+    [Header ("Window Controllers")] 
     public RectTransform SignUpSignInWindow;
     public RectTransform SignInWindow;
     public RectTransform SignUpWindow;
-    
-    //? Sign In inputs
+    [Header ("Sign In Inputs")]
     public InputField emailSignIn;
     public InputField passwordSignIn;
-    
-    //? Sign Up inputs
+    [Header ("Sign Up Inputs")]
     public InputField emailCreateUser;
     public InputField passwordCreateUser;
     public Button BackToSignIn;
-    
-    //? Enter game buttons
+    [Header ("Sign In / Out Buttons")]
     public Button signInBtn;
     public Button signUpBtn;
     public Button signOutBtn;
-
-    [SerializeField] private MenuManager menuManager;
-    
-    //? Other UI elements
     public Button CreateNewUserBtn;
+    [Header ("OtherScripts")]
+    [SerializeField] private MenuManager menuManager;
+    [SerializeField] private PlayerController playerController;
+    [Header ("Error Messages")]
     public TextMeshProUGUI errorLogIn;
     public TextMeshProUGUI errorSignUp;
+    public TextMeshProUGUI SignedInUser;
+    [Header ("Other Elements")]
     public Button BackBtn;
     public RectTransform successfulSignIn;
     public Button SuccessfulSignInBtn;
     public Button PasswordResetBtn;
-    //? Firebase variables
+    [Header("Firebase References")]
     FirebaseAuth auth;
     FirebaseUser user;
+    DatabaseReference DBReference;
 
     private void Awake(){
         //? Firebase Initialization
         InitializeFirebase();
+        checkSignIn();
     }
 
     private void Start()
@@ -63,12 +64,36 @@ public class SignInUser : MonoBehaviour
         PasswordResetBtn.onClick.AddListener(HandlePasswordResetBtn);
     }
 
-    // Handle initialization of the necessary firebase modules:
+    void Update()
+    {
+        checkSignIn();
+    }
+
+    //* Handle initialization of the necessary firebase modules:
     void InitializeFirebase() {
         Debug.Log("Setting up Firebase Auth");
         auth = FirebaseAuth.DefaultInstance;
         auth.StateChanged += AuthStateChanged;
+        DBReference = FirebaseDatabase.DefaultInstance.RootReference;
+        if (auth.CurrentUser != null) {
+            user = auth.CurrentUser;
+            readWriteUserDetails();
+            Debug.Log("Signed in " + user.UserId);
+        } else {
+            Debug.Log("Not signed in");
+        }
         AuthStateChanged(this, null);
+    }
+
+    private void readWriteUserDetails(){
+        UserDetails userDetails = new UserDetails(user.Email, playerController.getHighScore());
+        string json = JsonUtility.ToJson(userDetails);
+        string userId = auth.CurrentUser.UserId;
+        DBReference.Child("users").Child(userId).SetRawJsonValueAsync(json);
+    }
+
+    private void CheckHighscorePerUser(){
+        
     }
 
     //? Handle different button clicks
@@ -77,10 +102,12 @@ public class SignInUser : MonoBehaviour
     private void HandleCreateUserBtn(){
         SignInWindow.gameObject.SetActive(false);
         SignUpWindow.gameObject.SetActive(true);
+        BackBtn.gameObject.SetActive(false);
     }
     private void HandleBackToSignIn(){
         SignInWindow.gameObject.SetActive(true);
         SignUpWindow.gameObject.SetActive(false);
+        BackBtn.gameObject.SetActive(true);
     }
 
     private void HandleSignOutButton(){
@@ -130,6 +157,7 @@ public class SignInUser : MonoBehaviour
             user = signInUserResult.User;
             Debug.LogFormat("User: " + user.Email + " signed in successfully!");
             menuManager.LogInScreen.SetActive(false);
+            SignedInUser.text = "Signed in as " + user.Email;
         }
     }
 
@@ -156,6 +184,7 @@ public class SignInUser : MonoBehaviour
             user = addUserResult.User;
             Debug.LogFormat("User: " + user.Email + " created successfully!");
             successfulSignIn.gameObject.SetActive(true);
+            SignedInUser.text = "Not signed in";
         }
     }
 
@@ -178,5 +207,26 @@ public class SignInUser : MonoBehaviour
     void OnDestroy() {
         auth.StateChanged -= AuthStateChanged;
         auth = null;
+    }
+
+    void checkSignIn(){
+        //? Check if the user is signed in
+        if (user != null)
+        {
+            SignedInUser.text = "Signed in as " + user.Email;
+        }
+        else
+        {
+            SignedInUser.text = "Not signed in";
+        }
+    }
+}
+
+public class UserDetails{
+    public string email;
+    public int highScore;
+    public UserDetails(string email, int highScore){
+        this.email = email;
+        this.highScore = highScore;
     }
 }
