@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "973009809521",
+    "firebase_url": "https://alus-pelidata2024-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "alus-pelidata2024",
+    "storage_bucket": "alus-pelidata2024.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:973009809521:android:dcf0b1627555b34f81ebd0",
+        "android_client_info": {
+          "package_name": "com.onebitwonders.Pelidata2024"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGNWYURuLClZiPtY_OqAU-W7c5ztAobT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
